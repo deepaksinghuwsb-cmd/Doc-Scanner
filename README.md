@@ -1,40 +1,56 @@
-# Doc Scanner
+# Doc Scanner V2 Pro
 
-A mobile-first, client-side document scanning PWA built with Vite and vanilla JavaScript. All captured page images are stored in IndexedDB on the current device; page order and selection metadata are mirrored in localStorage. There is no application server or account backend.
+A mobile-first document scanning workspace built with React and Vite. Capture pages from a camera, import images or PDFs, crop and enhance scans, run OCR, organize pages, and export documents from the browser.
 
 ## Features
 
-- Live camera capture with rear/front camera switching, plus camera-file input fallback.
-- Multi-file image and PDF import, with PDF pages rendered into editable scans.
-- Drag-and-drop import and a horizontal, draggable page queue with reorder, duplicate, and delete actions.
-- Per-page Original, Auto Enhance, Grayscale, B&W, and Lighten treatments; brightness, contrast, and 90° rotation controls.
-- Four-corner crop editor with touch/mouse handles, OpenCV.js edge detection and perspective correction, and a rectangular canvas fallback.
-- Tesseract.js OCR with editable recognized text; OCR text is embedded in PDF output for search.
-- Ordered multi-page PDF export, JPG ZIP export, Web Share API, and installable PWA shell.
+- Camera capture with rear/front camera switching, gallery import, multi-file import, and drag-and-drop.
+- Editable scan queue with reorder, duplicate, delete, and persistent local page storage.
+- Four-corner crop editor with OpenCV perspective correction and a canvas crop fallback.
+- Per-page filters, brightness, contrast, rotation, flips, resize presets, before/after preview, and undo/redo.
+- On-device OCR with editable text, multi-page PDF export, JPG ZIP export, and share support where available.
+- Tools for images to PDF, PDF page images, image compression, PDF merge/split, and format conversion.
+- Responsive navigation, light/dark themes, settings, and account screens. Local mode works without configuring a service.
+- Optional Supabase email/password and Google sign-in integration.
 
-## Run locally
+## Requirements and local development
 
-Requires Node.js 20 or newer.
+Use Node.js 20 or newer.
 
 ```sh
 npm install
 npm run dev
 ```
 
-Create a production bundle with `npm run build`, then preview it with `npm run preview`. Camera access requires HTTPS or localhost. The first load of PDF.js, OpenCV.js, pdf-lib, Tesseract.js, and JSZip uses jsDelivr; app screens and the queue are cached by the service worker after a successful first visit. Third-party processing libraries may need a network connection until downloaded.
+Build and preview the production bundle:
+
+```sh
+npm run build
+npm run preview
+```
+
+Camera access requires HTTPS or `localhost`. The app stores scans on the current device using IndexedDB and localStorage; clearing this browser's site data removes local scans. PDF.js, OpenCV.js, and OCR language assets may be fetched on first use, so those capabilities need a network connection until loaded.
+
+## Optional Supabase authentication
+
+Copy `.env.example` to `.env.local` and provide the Supabase project URL and anon key. Enable email/password and, if desired, Google OAuth in the Supabase dashboard. Without these values, the app remains available in local mode and account screens explain that cloud auth is not configured. Any deployment must use the public anon key only; never put a service-role key in client code.
+
+## Stack
+
+- React 19, React Router, Vite, and responsive custom CSS
+- IndexedDB/localStorage for on-device scan data and preferences
+- pdf-lib, JSZip, PDF.js, Tesseract.js, and OpenCV.js for document workflows
+- Supabase JS for optional authentication
 
 ## Project layout
 
-- `src/main.js` — UI state, event wiring, queue and export actions
-- `src/modules/camera.js` — camera stream and still capture
-- `src/modules/scanner.js` — image and PDF page import
-- `src/modules/crop.js` — edge detection, perspective correction and crop fallback
-- `src/modules/filters.js` — image adjustments and export rendering
-- `src/modules/pdfExport.js` — PDF and JPG ZIP generation
-- `src/modules/ocr.js` — Tesseract text recognition
-- `src/modules/storage.js` — IndexedDB page storage and localStorage queue metadata
-- `sw.js`, `manifest.webmanifest`, `icon.svg` — PWA setup
+- `src/main.jsx`, `src/App.jsx` — React entry and routes
+- `src/pages/` — scanner, tools, files, settings, and account screens
+- `src/components/` — responsive app shell and crop editor
+- `src/modules/` — camera, import, crop, filters, OCR, storage, and export workflows
+- `src/context/`, `src/lib/` — settings, theme, auth, and shared helpers
+- `public/` — PWA manifest, service worker, and app icon
 
 ## Privacy
 
-Images remain in this browser’s IndexedDB. OCR and image processing run on-device after their libraries and language data load. Clearing this site’s browser storage deletes saved scans. Sharing or exporting sends data only when the user initiates that action.
+Images and OCR processing stay in the browser after required libraries and language assets load. Data leaves the device only when a user explicitly shares or exports it, or signs into a separately configured Supabase project.

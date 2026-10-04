@@ -1,0 +1,3 @@
+import {createContext,useContext,useMemo,useState} from 'react';
+const defaults={defaultFilter:'original',pageSize:'auto',pdfQuality:'high',imageFormat:'jpg',ocrLanguage:'eng',autoOcr:false};const Context=createContext(null);export const useSettings=()=>useContext(Context);
+export function SettingsProvider({children}){const [settings,set]=useState(()=>({...defaults,...JSON.parse(localStorage.getItem('doc-settings')||'{}')}));const update=(key,value)=>set(old=>{const next={...old,[key]:value};localStorage.setItem('doc-settings',JSON.stringify(next));return next});const value=useMemo(()=>({settings,update}),[settings]);return <Context.Provider value={value}>{children}</Context.Provider>}
