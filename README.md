@@ -1,22 +1,40 @@
-# ClearScan
+# Doc Scanner
 
-ClearScan is a browser-based document scanning workspace. Open `index.html` in a modern browser, capture pages with a phone camera, or add image/PDF files. Files and scans stay in the browser; PDF import/export libraries are loaded from jsDelivr when needed.
+A mobile-first, client-side document scanning PWA built with Vite and vanilla JavaScript. All captured page images are stored in IndexedDB on the current device; page order and selection metadata are mirrored in localStorage. There is no application server or account backend.
 
-## Current features
+## Features
 
-- Capture a page with the device camera or upload image files.
-- Import PDF pages into the scan queue.
-- Reorder, rotate, and remove pages.
-- Preview color, grayscale, and high-contrast treatments with brightness and contrast controls.
-- Save the scan queue locally in IndexedDB and export a multi-page PDF or individual JPEG pages.
-- Responsive layout for desktop and mobile.
+- Live camera capture with rear/front camera switching, plus camera-file input fallback.
+- Multi-file image and PDF import, with PDF pages rendered into editable scans.
+- Drag-and-drop import and a horizontal, draggable page queue with reorder, duplicate, and delete actions.
+- Per-page Original, Auto Enhance, Grayscale, B&W, and Lighten treatments; brightness, contrast, and 90° rotation controls.
+- Four-corner crop editor with touch/mouse handles, OpenCV.js edge detection and perspective correction, and a rectangular canvas fallback.
+- Tesseract.js OCR with editable recognized text; OCR text is embedded in PDF output for search.
+- Ordered multi-page PDF export, JPG ZIP export, Web Share API, and installable PWA shell.
 
-## Incremental roadmap
+## Run locally
 
-1. **Scanning foundation (current):** local scan queue, image/PDF import, page management, basic cleanup, PDF export.
-2. **Capture quality:** page boundary detection, perspective correction, crop handles, shadow cleanup, batch camera capture.
-3. **Document tools:** OCR and searchable PDFs, text selection, annotation, fillable forms, merge/split, compression, and page-size controls.
-4. **Ready-to-use product:** accessible keyboard workflows, robust error handling, browser/device coverage, privacy controls, and optional sign-in/sync.
+Requires Node.js 20 or newer.
 
-The roadmap describes planned work; features in steps 2–4 are not implemented yet.
+```sh
+npm install
+npm run dev
+```
 
+Create a production bundle with `npm run build`, then preview it with `npm run preview`. Camera access requires HTTPS or localhost. The first load of PDF.js, OpenCV.js, pdf-lib, Tesseract.js, and JSZip uses jsDelivr; app screens and the queue are cached by the service worker after a successful first visit. Third-party processing libraries may need a network connection until downloaded.
+
+## Project layout
+
+- `src/main.js` — UI state, event wiring, queue and export actions
+- `src/modules/camera.js` — camera stream and still capture
+- `src/modules/scanner.js` — image and PDF page import
+- `src/modules/crop.js` — edge detection, perspective correction and crop fallback
+- `src/modules/filters.js` — image adjustments and export rendering
+- `src/modules/pdfExport.js` — PDF and JPG ZIP generation
+- `src/modules/ocr.js` — Tesseract text recognition
+- `src/modules/storage.js` — IndexedDB page storage and localStorage queue metadata
+- `sw.js`, `manifest.webmanifest`, `icon.svg` — PWA setup
+
+## Privacy
+
+Images remain in this browser’s IndexedDB. OCR and image processing run on-device after their libraries and language data load. Clearing this site’s browser storage deletes saved scans. Sharing or exporting sends data only when the user initiates that action.
